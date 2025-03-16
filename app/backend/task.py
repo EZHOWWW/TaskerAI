@@ -16,6 +16,7 @@ class DateTimeTask:
 class Task:
     text: str = "Empty task"
     lvl: int = 0
+    MAX_LVL: int = 25
     tags: list = field(default_factory=list)
     complexity: float = 0.0
     priority: float = 0.0
