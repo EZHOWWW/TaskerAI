@@ -17,7 +17,6 @@ class TaskerModel:
                                 3. Для декомпозиции создавай логически завершенные подзадачи
                                 4. Если параметр нельзя определить - используй значение по умолчанию
                                 5. Не выполнять задачи, тебе нужно только их обробатывать
-
                                 Примеры ответов:
                                 {"complexity": 0.7, "priority": 0.9, "lvl": 2}
                                 {"subtasks": [{"text": "Подзадача 1", "complexity": 0.4}, ...]}
@@ -37,7 +36,7 @@ class TaskerModel:
             """
 
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
 
             subtasks = []
@@ -59,11 +58,24 @@ class TaskerModel:
     def ask_count_subtasks(self, tsk: Task) -> tuple[int, str]:
         user_prompt = f"""
             Определи оптимальное количество подзадач для декомпозиции задачи: {tsk.text}
-            Верни JSON с полем count (целое число) и rationale (краткое объяснение)
+            Например у задачи: Написать статью на тему ИИ, такие подзадачи:
+                {"subtasks": [{"text": "Определить тему для статьи"},
+                            {"text": "Провести исследования и анализ"},
+                            {"text": "Определить структуру статьи"},
+                            {"text": "Написать текст статьи"},
+                            {"text": "Опубликоваться"}] } 
+                        => 5 подзадачь.
+                        => Ответ: {"count_subtasks": 5}
+            У задачи "Сходить в магазин"
+                        => 0 подзадачь.
+                        => Ответ: {"count_subtasks": 0}
+            Декомпозиция идет только на один уровень, не нужно декомпозировать подзадачи.
+            Верни JSON с полем count_subtasks (целое число) 
+            Ответ: {"count_subtasks": количество подзадач}
             """
 
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             return int(data.get("count", 3)), data.get("rationale", "")
         except:
@@ -98,7 +110,7 @@ class TaskerModel:
             Задача: {task.text}
             Ответ в формате: {{"complexity": 0.5}}"""
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             c = float(clip(float(data.get("complexity", 0.0)), 0.0, 1.0))
             if inplace:
@@ -118,7 +130,7 @@ class TaskerModel:
             Ответ в формате: {{"priority": 0.7}}"""
 
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             p = float(clip(float(data.get("priority", 0.0)), 0.0, 1.0))
             if inplace:
@@ -139,7 +151,7 @@ class TaskerModel:
             Задача: {task.text}
             Ответ в формате: {{"lvl": 2}}"""
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             lvl = int(clip(data.get("lvl", 0), 0, task.MAX_LVL, dtype=int))
             if inplace:
@@ -171,7 +183,7 @@ class TaskerModel:
             Ответ в формате: {{"tags": ["разработка", "оптимизация"]}}"""
 
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             max_count = (
                 tags_count[1]
@@ -192,7 +204,7 @@ class TaskerModel:
             }}"""
 
         try:
-            response = self.model.generate(self._system_promt, user_prompt)
+            response = self.gen(self._system_promt, user_prompt)
             data = self._parse_json(response)
             dt = task.date_time_task
             dt.deadline = self._parse_datetime(data.get("deadline"))
@@ -212,7 +224,6 @@ class TaskerModel:
     def _parse_json(self, response: str) -> dict:
         """Пытается найти и распарсить JSON в ответе модели"""
         import json
-
         try:
             json_start = response.find("{")
             json_end = response.rfind("}") + 1
@@ -220,11 +231,7 @@ class TaskerModel:
         except:
             return {}
 
+    def gen(self,system_promt:str,  user_prompt:str ) -> str:
+        return self.model.generate(self._system_promt, user_prompt)
 
-if __name__ == "__main__":
-    task = Task(text="Я хочу изучть тему линейноые пространства в линейной алгебре.")
-    task = Task(text="Изучить англисский язык от уровня A2 до B2")
-    m = TaskerModel()
-    l = m.estimate_level(task)
-    pprint(l)
-    pprint(task)
+
