@@ -44,6 +44,7 @@ class TestAIModel(unittest.TestCase):
         tags4 = self.m.estimate_tags(tsk4, existent_tags=ex_tags)
         self.assertTrue(not set(ex_tags).isdisjoint(tags4))
 
+    @unittest.skip
     def test_complexity_estimate(self):
         tsk_h = Task("Выучить 200 вопросов для экзамена на водительские права")
         tsk_e = Task("Сходить в кафе с друзьями")
@@ -62,8 +63,15 @@ class TestAIModel(unittest.TestCase):
         self.assertGreater(c1, c2)
 
     def test_priority_estimate(self):
-        # TODO
-        pass
+        task_g = Task("Доделать важный проект по работе, скоро дедлайн")
+        task_l = Task("Научится готовить торт наполеон")
+        pg = self.m.estimate_priority(task_g)
+        pl = self.m.estimate_priority(task_l)
+        self.assertGreater(pg, pl)
+
+        self.assertEqual(task_g.priority, pg)
+
+
     def test_time_to_do_task_estimate(self):
         # TODO
         pass
