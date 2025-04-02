@@ -1,6 +1,6 @@
 import unittest
 from backend.task import Task
-from backend.Model.model import TaskerModel
+from backend.model.model import TaskerModel
 
 
 class TestAIModel(unittest.TestCase):
@@ -70,7 +70,6 @@ class TestAIModel(unittest.TestCase):
         self.assertGreater(pg, pl)
 
         self.assertEqual(task_g.priority, pg)
-
 
     def test_time_to_do_task_estimate(self):
         # TODO

@@ -1,4 +1,4 @@
-from backend.Model.imodel import LLModel
+from backend.model.imodel import LLModel
 from dotenv import load_dotenv
 import requests
 import json

@@ -2,7 +2,7 @@ from pprint import pprint
 from backend.task import Task, DateTimeTask
 import typing as tp
 from datetime import datetime
-from backend.Model.deep_seek_model import DeepSeekModel
+from backend.model.deep_seek_model import DeepSeekModel
 from pprint import pprint
 from numpy import clip
 

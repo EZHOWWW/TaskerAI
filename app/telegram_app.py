@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from typing import Optional
 
 # Импорты микросервиса
-from backend.Model.model_app import (
+from backend.model.model_app import (
     app as model_app,
 )  # Предполагается, что модель находится здесь
 
@@ -25,7 +25,7 @@ class Application:
 
     def run_server(self):
         # uvicorn.run(model_app, host="0.0.0.0", port=8000)
-        uvicorn.run("backend.Model.model_app:app")
+        uvicorn.run("backend.model.model_app:app")
 
     def run_telegram_bot(self):
         from frontend.bot import TelegramBot
@@ -36,8 +36,3 @@ class Application:
 
 if __name__ == "__main__":
     Application().run()
-
-# import uvicorn
-
-# if __name__ == "__main__":
-#     uvicorn.run("backend.Model.model_app:app")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
-from backend.Model.model import TaskerModel
-from backend.Model.imodel import ModelRequest
+from backend.model.model import TaskerModel
+from backend.model.imodel import ModelRequest
 
 app = FastAPI()
 
