@@ -8,6 +8,7 @@ from numpy import clip
 
 
 class TaskerModel:
+    # TODO agetns for other parameter
     def __init__(self):
         self.model = DeepSeekModel()
         self._system_promt = """Ты опытный помощник в декомпозиции задач. Твои ответы должны быть строго в формате JSON.
@@ -235,12 +236,3 @@ class TaskerModel:
 
     def promt(self, system_promt: str, user_prompt: str) -> str:
         return self.model.generate(system_promt, user_prompt)
-
-
-if __name__ == "__main__":
-    task = Task(text="Я хочу изучть тему линейноые пространства в линейной алгебре.")
-    task = Task(text="Изучить англисский язык от уровня A2 до B2")
-    m = TaskerModel()
-    l = m.estimate_level(task)
-    pprint(l)
-    pprint(task)
