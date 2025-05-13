@@ -23,7 +23,6 @@ class TestAIModel(unittest.TestCase):
         tags1 = self.m.estimate_tags(tsk1)
         tags2 = self.m.estimate_tags(tsk2)
         self.assertNotEqual(tags1, tags2)
-        print(tags1, tags2)
         self.assertTrue(not set(tags1).isdisjoint(tags2))  # множества пересекаются
 
         tags_count = 7
