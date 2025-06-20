@@ -1,0 +1,9 @@
+[project]
+name = "core_lib"
+version = "0.1.0"
+dependencies = [
+    "pydantic[email]"
+]
+
+[tool.setuptools]
+packages = ["core_lib"]
