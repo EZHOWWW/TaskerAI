@@ -1,0 +1,11 @@
+[project]
+name = "task_processor"
+version = "0.1.0"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "core_lib",
+]
+
+[tool.uv]
+sources = { "core_lib" = { "path" = "../../core_lib", "editable" = true } }
