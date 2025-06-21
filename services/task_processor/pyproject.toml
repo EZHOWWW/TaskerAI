@@ -1,15 +1,20 @@
-# services/task_processor/pyproject.toml
 [project]
 name = "task_processor"
 version = "0.1.0"
 dependencies = [
     "fastapi",
+    "python-dotenv",
     "uvicorn[standard]",
+    # Database
+    "sqlalchemy[asyncio]",
+    "psycopg-binary",
+    "alembic",
+    "pgvector",
+    # Agents
+    "langchain>=0.3.26",
+    "langchain-openai>=0.3.24",
+
     "core_lib",
-    "langchain",
-    "langchain-core",
-    "langchain-community", 
-    "python-dotenv",      
 ]
 
 [tool.uv]
