@@ -12,7 +12,7 @@ class Task(BaseModel):
     id: Optional[int] = None
 
     # a short, clear title for the task
-    title: str = Field(..., min_length=3, max_length=120)
+    title: str = Field(..., min_length=3, max_length=128)
 
     # a more detailed description of the task, optional
     description: Optional[str] = None
