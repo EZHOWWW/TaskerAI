@@ -4,7 +4,7 @@ from langchain_core.language_models import BaseChatModel
 
 # We will get the task model from our shared library
 from core_lib.models.task import Task
-
+from .logging_config import logger
 # --- System Prompt ---
 # This is the core instruction for our AI assistant.
 PROMPT_TEMPLATE = """
@@ -83,5 +83,12 @@ class TaskProcessor:
         """
         Processes the user's goal and returns a structured Task object.
         """
-        # The .ainvoke method runs the chain asynchronously
-        return await self.chain.ainvoke({"goal": goal})
+        logger.info(f"Starting to process goal: '{goal[:50]}...'")
+        try:
+            # The .ainvoke method runs the chain asynchronously
+            response = await self.chain.ainvoke({"goal": goal})
+            logger.info(f"Successfully parsed LLM response for goal: '{goal[:50]}...'")
+            return response
+        except Exception as e:
+            logger.error(f"Failed to process goal '{goal[:50]}...'. Error: {e}", exc_info=True)
+            raise
