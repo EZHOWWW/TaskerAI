@@ -1,3 +1,4 @@
+# services/task_processor/pyproject.toml
 [project]
 name = "task_processor"
 version = "0.1.0"
@@ -5,6 +6,10 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "core_lib",
+    "langchain",
+    "langchain-core",
+    "langchain-community", 
+    "python-dotenv",      
 ]
 
 [tool.uv]
