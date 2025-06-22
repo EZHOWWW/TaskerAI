@@ -1,10 +1,12 @@
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.language_models import BaseChatModel
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+
+from core_lib.logging_config import logger
 
 # We will get the task model from our shared library
 from core_lib.models.task import Task
-from .logging_config import logger
+
 # --- System Prompt ---
 # This is the core instruction for our AI assistant.
 PROMPT_TEMPLATE = """
@@ -59,11 +61,14 @@ USER'S GOAL:
 
 {format_instructions}
 """
+
+
 # TODO tags from user tags storage
 class TaskProcessor:
     """
     Encapsulates the logic for processing a goal using an LLM chain.
     """
+
     def __init__(self, model: BaseChatModel):
         # 1. Create a Pydantic parser for our Task model
         self.parser = PydanticOutputParser(pydantic_object=Task)
@@ -87,8 +92,13 @@ class TaskProcessor:
         try:
             # The .ainvoke method runs the chain asynchronously
             response = await self.chain.ainvoke({"goal": goal})
-            logger.info(f"Successfully parsed LLM response for goal: '{goal[:50]}...'")
+            logger.info(
+                f"Successfully parsed LLM response for goal: '{goal[:50]}...'"
+            )
             return response
         except Exception as e:
-            logger.error(f"Failed to process goal '{goal[:50]}...'. Error: {e}", exc_info=True)
+            logger.error(
+                f"Failed to process goal '{goal[:50]}...'. Error: {e}",
+                exc_info=True,
+            )
             raise
