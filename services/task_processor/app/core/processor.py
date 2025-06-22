@@ -1,8 +1,7 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-
-from core_lib.logging_config import logger
+from .logging_config import logger
 
 # We will get the task model from our shared library
 from core_lib.models.task import Task

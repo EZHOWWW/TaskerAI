@@ -2,17 +2,17 @@ import logging
 import sys
 
 
-def setup_logging():
+def setup_service_logging(service_name: str):
     """Configures the application's logger."""
     # Create a logger
-    logger = logging.getLogger("task_processor")
+    logger = logging.getLogger(service_name)
     logger.setLevel(logging.INFO)
 
     # Create handlers
     # Console handler
     c_handler = logging.StreamHandler(sys.stdout)
     # File handler
-    f_handler = logging.FileHandler("task_processor.log")
+    f_handler = logging.FileHandler(f"{service_name}.log")
 
     c_handler.setLevel(logging.INFO)
     f_handler.setLevel(logging.INFO)
@@ -30,6 +30,3 @@ def setup_logging():
         logger.addHandler(f_handler)
 
     return logger
-
-
-logger = setup_logging()
