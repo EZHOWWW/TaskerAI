@@ -11,6 +11,8 @@ class Task(BaseModel):
     """
     id: Optional[int] = None
 
+    user_name: Optional[str] = None # name of user, those create task 
+
     # a short, clear title for the task
     title: str = Field(..., min_length=3, max_length=128)
 
@@ -40,6 +42,11 @@ class Task(BaseModel):
 
     # timestamp of when the task was created
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    planned_start: Optional[datetime] = None
+    planned_end: Optional[datetime] = None
+    min_start_time: Optional[datetime] = None
+    
 
     class Config:
         from_attributes = True

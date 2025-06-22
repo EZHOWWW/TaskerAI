@@ -1,0 +1,21 @@
+[project]
+name = "scheduler"
+version = "0.1.0"
+description = "Module create add new tasks to user scheduler"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.16.2",
+    "fastapi",
+    "dotenv>=0.9.9",
+    "pgvector>=0.4.1",
+    "psycopg2-binary>=2.9.10",
+    "pydantic>=2.11.7",
+    "pytest>=8.4.1",
+    "python-dotenv>=1.1.0",
+    "sqlalchemy>=2.0.41",
+    "core_lib",
+]
+
+[tool.uv]
+sources = { "core_lib" = { "path" = "../../core_lib", "editable" = true } }

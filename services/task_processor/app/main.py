@@ -30,8 +30,8 @@ except ValueError as e:
 
 @app.post(
     "/process",
-    response_model=Task, # We now return the full Task object
-    status_code=status.HTTP_200_OK, # Changed to OK as it's now synchronous
+    response_model=Task, 
+    status_code=status.HTTP_200_OK, 
     summary="Process a high-level goal into a structured task"
 )
 async def process_task(request: TaskProcessRequest):
