@@ -29,3 +29,8 @@ async def create_task_in_db(
     await session.commit()
     await session.refresh(db_task)  # Refresh to get the ID from the DB
     return db_task
+
+
+async def get_all_root_tasks(session: AsyncSession) -> list[DBTask]:
+    result = await session.execute(select(DBTask).filter(DBTask.level == 0))
+    return result.scalars()

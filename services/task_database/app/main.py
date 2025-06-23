@@ -1,9 +1,9 @@
 from typing import List
 
+from app.core.logging_config import logger
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.logging_config import logger  
 from core_lib.models.task import Task as PydanticTask
 
 from .db import crud
@@ -54,8 +54,7 @@ async def get_root_tasks(session: AsyncSession = Depends(get_db_session)):
     return [PydanticTask.model_validate(task) for task in db_tasks]
 
 
-# We need to add the new CRUD function
-# in services/task_database/app/db/crud.py
-# async def get_all_root_tasks(session: AsyncSession):
-#     result = await session.execute(select(DBTask).filter(DBTask.parent_id == None))
-#     return result.scalars().all()
+# TODO Change(rewrite) task
+# TODO Delete task
+# TODO Get all user task(by user id) ...
+# TODO Get a task that has a similar meaning (vec search)
