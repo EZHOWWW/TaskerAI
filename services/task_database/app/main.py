@@ -1,57 +1,83 @@
+# in services/task_database/app/main.py
 from typing import List
 
-from app.core.logging_config import logger
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core_lib.models.task import Task as PydanticTask
+from core_lib.models.task import Task, TaskCreate, TaskUpdate
 
 from .db import crud
 from .db.session import get_db_session, init_db
 
-app = FastAPI(
-    title="TaskerAI: Database Service",
-    description="Provides a data access API for all task-related operations.",
-)
+app = FastAPI(title="TaskerAI: Database Service")
 
 
 # --- Events ---
 @app.on_event("startup")
 async def on_startup():
-    logger.info("Database service is starting up...")
     await init_db()
-    logger.info("Database initialized.")
 
 
 # --- API Endpoints ---
-@app.post(
-    "/tasks/", response_model=PydanticTask, status_code=status.HTTP_201_CREATED
-)
+@app.post("/tasks/", response_model=Task, status_code=status.HTTP_201_CREATED)
 async def create_task(
-    task: PydanticTask, session: AsyncSession = Depends(get_db_session)
+    task: TaskCreate, session: AsyncSession = Depends(get_db_session)
 ):
-    """Create a new task in the database."""
-    db_task = await crud.create_task_in_db(session=session, task=task)
-    return PydanticTask.model_validate(db_task)
+    """Create a new task. ID is handled automatically."""
+    return await crud.create_task_in_db(session=session, task=task)
 
 
-@app.get("/tasks/{task_id}", response_model=PydanticTask)
-async def get_task(
+@app.get("/tasks/", response_model=List[Task])
+async def read_user_tasks(
+    user_id: int, session: AsyncSession = Depends(get_db_session)
+):
+    """Retrieve all tasks for a specific user."""
+    return await crud.get_tasks_by_user(session=session, user_id=user_id)
+
+
+@app.get("/tasks/unscheduled/", response_model=List[Task])
+async def read_unscheduled_tasks(
+    user_id: int, session: AsyncSession = Depends(get_db_session)
+):
+    """Retrieve future or unscheduled tasks for a user."""
+    return await crud.get_unscheduled_tasks(session=session, user_id=user_id)
+
+
+@app.get("/tasks/{task_id}", response_model=Task)
+async def read_task(
     task_id: int, session: AsyncSession = Depends(get_db_session)
 ):
     """Retrieve a single task by its ID."""
     db_task = await crud.get_task_by_id(session=session, task_id=task_id)
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    return PydanticTask.model_validate(db_task)
+    return db_task
 
 
-@app.get("/tasks/", response_model=List[PydanticTask])
-async def get_root_tasks(session: AsyncSession = Depends(get_db_session)):
-    """Retrieve all root-level tasks (tasks without a parent)."""
-    # Note: We might need a new CRUD function for this
-    db_tasks = await crud.get_all_root_tasks(session=session)
-    return [PydanticTask.model_validate(task) for task in db_tasks]
+@app.patch("/tasks/{task_id}", response_model=Task)
+async def update_task(
+    task_id: int,
+    task_update: TaskUpdate,
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Partially update a task's attributes."""
+    updated_task = await crud.update_task_in_db(
+        session=session, task_id=task_id, task_update=task_update
+    )
+    if updated_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return updated_task
+
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(
+    task_id: int, session: AsyncSession = Depends(get_db_session)
+):
+    """Delete a task by its ID."""
+    success = await crud.delete_task_in_db(session=session, task_id=task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return None
 
 
 # TODO Change(rewrite) task

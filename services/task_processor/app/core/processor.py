@@ -1,10 +1,11 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from .logging_config import logger
 
 # We will get the task model from our shared library
 from core_lib.models.task import Task
+
+from .logging_config import logger
 
 # --- System Prompt ---
 # This is the core instruction for our AI assistant.
@@ -79,6 +80,7 @@ class TaskProcessor:
                 "format_instructions": self.parser.get_format_instructions()
             },
         )
+        print(self.parser.get_format_instructions())
 
         # 3. Create the processing chain
         self.chain = self.prompt | model | self.parser

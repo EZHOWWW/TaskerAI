@@ -7,42 +7,58 @@ from pydantic import BaseModel, Field
 MAX_TASK_LEVEL = 25
 
 
-class Task(BaseModel):
-    """
-    Represents a single task, which can be a main goal or a sub-task.
-    """
+class TaskBase(BaseModel):
+    """Base Pydantic model with shared fields."""
 
-    id: Optional[int] = None
-
-    # a short, clear title for the task
-    title: str = Field(..., min_length=3, max_length=128)
-
-    # # a more detailed description of the task, optional
+    title: str = Field(..., min_length=3, max_length=120)
     description: Optional[str] = None
-
-    # # a list of id sub-tasks for decomposition
-    subtasks: List[int] = []
-
-    # # level of task nesting, validated against the global max
     level: int = Field(default=0, ge=0, le=MAX_TASK_LEVEL)
-
-    # # tags for categorization
-    tags: List[str] = []
-
-    # # estimated complexity from 0.0 to 1.0
     complexity: float = Field(default=0.0, ge=0.0, le=1.0)
-
-    # # priority from 0.0 to 1.0
     priority: float = Field(default=0.0, ge=0.0, le=1.0)
-
-    # # estimated time required to complete the task
+    tags: List[str] = []
     estimated_duration: Optional[timedelta] = None
-
-    # # the deadline for the task
     deadline: Optional[datetime] = None
+    parent_id: Optional[int] = None
 
-    # # timestamp of when the task was created
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TaskCreate(TaskBase):
+    """Model used for creating a new task. ID is not needed."""
+
+    user_id: int  # user_id is required for creation
+
+
+class TaskUpdate(BaseModel):
+    """Model used for updating a task. All fields are optional."""
+
+    title: Optional[str] = Field(None, min_length=3, max_length=120)
+    description: Optional[str] = None
+    level: Optional[int] = Field(None, ge=0, le=MAX_TASK_LEVEL)
+    complexity: Optional[float] = Field(None, ge=0.0, le=1.0)
+    priority: Optional[float] = Field(None, ge=0.0, le=1.0)
+    tags: Optional[List[str]] = None
+    estimated_duration: Optional[timedelta] = None
+    deadline: Optional[datetime] = None
+    # parent_id can also be updated
+    parent_id: Optional[int] = None
+
+
+class Task(TaskBase):
+    """
+    Model used for reading a task from the DB (includes DB-generated fields).
+    """
+
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+# Also update the request model for the processor
+class TaskProcessRequest(BaseModel):
+    goal: str = Field(
+        ..., description="The user's high-level goal.", min_length=5
+    )
+    user_id: int
