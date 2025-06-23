@@ -18,6 +18,8 @@ dependencies = [
     "fastapi>=0.115.13",
     "uvicorn>=0.34.3",
     "pydantic-settings>=2.10.0",
+    "pytest-asyncio>=1.0.0",
+    "aiosqlite>=0.21.0",
 ]
 
 [tool.uv]
