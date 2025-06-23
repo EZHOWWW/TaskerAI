@@ -103,3 +103,23 @@ class TaskProcessor:
                 exc_info=True,
             )
             raise
+
+    async def process_task(self, task: Task) -> Task:
+        """
+        Processes the user's task and returns new Task object.
+        """
+        goal = f" - {task.title} - \n{task.description}"
+        logger.info(f"Starting to process goal: '{repr(task)[:50]}...'")
+        try:
+            # The .ainvoke method runs the chain asynchronously
+            response = await self.chain.ainvoke({"goal": goal})
+            logger.info(
+                f"Successfully parsed LLM response for goal: '{goal[:50]}...'"
+            )
+            return response
+        except Exception as e:
+            logger.error(
+                f"Failed to process goal '{goal[:50]}...'. Error: {e}",
+                exc_info=True,
+            )
+            raise
