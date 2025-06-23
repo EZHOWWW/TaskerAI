@@ -1,4 +1,5 @@
-from typing import Optional
+from datetime import datetime, timedelta
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -17,31 +18,31 @@ class Task(BaseModel):
     title: str = Field(..., min_length=3, max_length=128)
 
     # # a more detailed description of the task, optional
-    # description: Optional[str] = None
+    description: Optional[str] = None
 
     # # a list of id sub-tasks for decomposition
-    # subtasks: List[int] = []
+    subtasks: List[int] = []
 
     # # level of task nesting, validated against the global max
-    # level: int = Field(default=0, ge=0, le=MAX_TASK_LEVEL)
+    level: int = Field(default=0, ge=0, le=MAX_TASK_LEVEL)
 
     # # tags for categorization
-    # tags: List[str] = []
+    tags: List[str] = []
 
     # # estimated complexity from 0.0 to 1.0
-    # complexity: float = Field(default=0.0, ge=0.0, le=1.0)
+    complexity: float = Field(default=0.0, ge=0.0, le=1.0)
 
     # # priority from 0.0 to 1.0
-    # priority: float = Field(default=0.0, ge=0.0, le=1.0)
+    priority: float = Field(default=0.0, ge=0.0, le=1.0)
 
     # # estimated time required to complete the task
-    # estimated_duration: Optional[timedelta] = None
+    estimated_duration: Optional[timedelta] = None
 
     # # the deadline for the task
-    # deadline: Optional[datetime] = None
+    deadline: Optional[datetime] = None
 
     # # timestamp of when the task was created
-    # created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
         from_attributes = True
