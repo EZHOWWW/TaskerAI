@@ -55,7 +55,8 @@ class Task(Base):
     #     Vector(384), nullable=True
     # )  # Dimension depends on embedding model
 
-    # # Timestamps
+    # Timestamps
+    deadline = Column(DateTime, default=None)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow

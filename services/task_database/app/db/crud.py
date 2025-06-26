@@ -1,11 +1,9 @@
-# in services/task_database/app/db/crud.py
 from datetime import datetime
 from typing import List
 
+from core_lib.models.task import TaskCreate, TaskUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from core_lib.models.task import TaskCreate, TaskUpdate
 
 from .mappers import pydantic_to_db_task
 from .models import Task as DBTask
