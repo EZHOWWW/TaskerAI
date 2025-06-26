@@ -1,36 +1,101 @@
+from datetime import datetime
+from typing import List
+
+from core_lib.models.task import TaskCreate, TaskUpdate
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
-from core_lib.models.task import Task as PydanticTask
-
+from .mappers import pydantic_to_db_task
 from .models import Task as DBTask
-from .models import pydantic_to_db
 
 
+# --- READ operations ---
 async def get_task_by_id(session: AsyncSession, task_id: int) -> DBTask | None:
     """Fetches a task by its ID."""
-    result = await session.execute(select(DBTask).filter(DBTask.id == task_id))
-    return result.scalars().first()
+    return await session.get(DBTask, task_id)
 
 
-async def create_task_in_db(
-    session: AsyncSession, task: PydanticTask
-) -> DBTask:
-    """Creates a new task in the database from a Pydantic model."""
-    # Convert Pydantic model to a dictionary, excluding unset fields
-    task_data = task.model_dump(exclude_unset=True)
+async def get_tasks_by_user(
+    session: AsyncSession, user_id: int
+) -> List[DBTask]:
+    """Fetches all tasks for a specific user."""
+    stmt = (
+        select(DBTask)
+        .where(DBTask.user_id == user_id)
+        .order_by(DBTask.created_at.desc())
+    )
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
-    # The 'subtasks' field in Pydantic is for API, not DB storage
-    if "subtasks" in task_data:
-        del task_data["subtasks"]
 
-    db_task = pydantic_to_db(task_data)
+async def get_unscheduled_tasks(
+    session: AsyncSession, user_id: int
+) -> List[DBTask]:
+    """Fetches future or unscheduled tasks for a user."""
+    stmt = (
+        select(DBTask)
+        .where(
+            DBTask.user_id == user_id,
+            (DBTask.deadline == None) | (DBTask.deadline > datetime.utcnow()),
+        )
+        .order_by(DBTask.priority.desc(), DBTask.deadline.asc())
+    )
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
+# --- CREATE operation ---
+async def create_task_in_db(session: AsyncSession, task: TaskCreate) -> DBTask:
+    """Creates a new task using the mapper."""
+    db_task = pydantic_to_db_task(task)
     session.add(db_task)
     await session.commit()
-    await session.refresh(db_task)  # Refresh to get the ID from the DB
+    await session.refresh(db_task)
     return db_task
 
 
-async def get_all_root_tasks(session: AsyncSession) -> list[DBTask]:
-    result = await session.execute(select(DBTask).filter(DBTask.level == 0))
-    return result.scalars()
+# --- UPDATE operation ---
+async def update_task_in_db(
+    session: AsyncSession, task_id: int, task_update: TaskUpdate
+) -> DBTask | None:
+    """Updates a task's attributes."""
+    db_task = await get_task_by_id(session, task_id)
+    if not db_task:
+        return None
+
+    # Get update data, excluding unset values
+    update_data = task_update.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(db_task, key, value)
+
+    await session.commit()
+    await session.refresh(db_task)
+    return db_task
+
+
+# --- DELETE operation ---
+async def delete_task_in_db(session: AsyncSession, task_id: int) -> bool:
+    """Deletes a task by its ID."""
+    db_task = await get_task_by_id(session, task_id)
+    if db_task:
+        await session.delete(db_task)
+        await session.commit()
+        return True
+    return False
+
+
+# --- SEARCH (Future) ---
+async def search_similar_tasks(
+    session: AsyncSession, user_id: int, query_embedding: List[float]
+):
+    """
+    Template for searching for tasks with similar embeddings.
+    The actual embedding model is not part of this service.
+    """
+    # Placeholder for the search logic
+    # stmt = select(DBTask).where(DBTask.user_id == user_id).order_by(DBTask.embedding.l2_distance(query_embedding)).limit(5)
+    # result = await session.execute(stmt)
+    # return result.scalars().all()
+    logger.info("Vector search function called (not implemented yet).")
+    return []

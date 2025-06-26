@@ -1,10 +1,11 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from .logging_config import logger
 
 # We will get the task model from our shared library
 from core_lib.models.task import Task
+
+from .logging_config import logger
 
 # --- System Prompt ---
 # This is the core instruction for our AI assistant.
@@ -79,6 +80,7 @@ class TaskProcessor:
                 "format_instructions": self.parser.get_format_instructions()
             },
         )
+        print(self.parser.get_format_instructions())
 
         # 3. Create the processing chain
         self.chain = self.prompt | model | self.parser
@@ -88,6 +90,26 @@ class TaskProcessor:
         Processes the user's goal and returns a structured Task object.
         """
         logger.info(f"Starting to process goal: '{goal[:50]}...'")
+        try:
+            # The .ainvoke method runs the chain asynchronously
+            response = await self.chain.ainvoke({"goal": goal})
+            logger.info(
+                f"Successfully parsed LLM response for goal: '{goal[:50]}...'"
+            )
+            return response
+        except Exception as e:
+            logger.error(
+                f"Failed to process goal '{goal[:50]}...'. Error: {e}",
+                exc_info=True,
+            )
+            raise
+
+    async def process_task(self, task: Task) -> Task:
+        """
+        Processes the user's task and returns new Task object.
+        """
+        goal = f" - {task.title} - \n{task.description}"
+        logger.info(f"Starting to process goal: '{repr(task)[:50]}...'")
         try:
             # The .ainvoke method runs the chain asynchronously
             response = await self.chain.ainvoke({"goal": goal})
