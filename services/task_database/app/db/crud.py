@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import List
 
-from core_lib.models.task import TaskCreate, TaskUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from core_lib.models.task import TaskCreate, TaskUpdate
 
 from .mappers import pydantic_to_db_task
 from .models import Task as DBTask
@@ -59,16 +60,19 @@ async def update_task_in_db(
     session: AsyncSession, task_id: int, task_update: TaskUpdate
 ) -> DBTask | None:
     """Updates a task's attributes."""
+    print("=========================== BEGIN UPDATE")
     db_task = await get_task_by_id(session, task_id)
     if not db_task:
         return None
 
     # Get update data, excluding unset values
     update_data = task_update.model_dump(exclude_unset=True)
+    print("=========================== BEGIN UPDATE")
 
     for key, value in update_data.items():
         setattr(db_task, key, value)
 
+    print("=========================== BEGIN UPDATE")
     await session.commit()
     await session.refresh(db_task)
     return db_task

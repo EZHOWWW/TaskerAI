@@ -78,9 +78,3 @@ async def delete_task(
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")
     return None
-
-
-# TODO Change(rewrite) task
-# TODO Delete task
-# TODO Get all user task(by user id) ...
-# TODO Get a task that has a similar meaning (vec search)

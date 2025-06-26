@@ -56,8 +56,10 @@ class Task(Base):
     # )  # Dimension depends on embedding model
 
     # Timestamps
-    deadline = Column(DateTime, default=None)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    deadline = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
