@@ -13,7 +13,6 @@ dependencies = [
     # Agents
     "langchain>=0.3.26",
     "langchain-openai>=0.3.24",
-
     "core_lib",
 ]
 
