@@ -14,6 +14,8 @@ dependencies = [
     "langchain>=0.3.26",
     "langchain-openai>=0.3.24",
     "core_lib",
+    "httpx>=0.28.1",
+    "aiokafka>=0.12.0",
 ]
 
 [tool.uv]

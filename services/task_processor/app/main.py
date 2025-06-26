@@ -10,7 +10,7 @@ from .core.processor import TaskProcessor
 from .llm.chat_model import get_chat_model
 
 # --- Configuration ---
-DATABASE_SERVICE_URL = "http://localhost:8000"
+DATABASE_SERVICE_URL = "http://localhost:8100"
 
 
 # --- API Data Models ---
