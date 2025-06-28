@@ -16,9 +16,11 @@ class TaskBase(BaseModel):
     complexity: float = Field(default=0.0, ge=0.0, le=1.0)
     priority: float = Field(default=0.0, ge=0.0, le=1.0)
     tags: List[str] = []
-    estimated_duration: Optional[timedelta] = None
-    deadline: Optional[datetime] = None
     parent_id: Optional[int] = None
+
+    estimated_duration: Optional[timedelta] = None
+    start_time_execution: Optional[datetime] = None
+    deadline: Optional[datetime] = None
 
 
 class TaskCreate(TaskBase):
@@ -36,10 +38,12 @@ class TaskUpdate(BaseModel):
     complexity: Optional[float] = Field(None, ge=0.0, le=1.0)
     priority: Optional[float] = Field(None, ge=0.0, le=1.0)
     tags: Optional[List[str]] = None
-    estimated_duration: Optional[timedelta] = None
-    deadline: Optional[datetime] = None
     # parent_id can also be updated
     parent_id: Optional[int] = None
+
+    start_time_execution: Optional[datetime] = None
+    estimated_duration: Optional[timedelta] = None
+    deadline: Optional[datetime] = None
 
 
 class Task(TaskBase):
@@ -54,6 +58,17 @@ class Task(TaskBase):
 
     class Config:
         from_attributes = True
+
+
+class TaskWithSubtasks(Task):
+    """
+    A recursive model to represent a task with its entire subtree of subtasks.
+    """
+
+    subtasks: List["TaskWithSubtasks"] = []
+
+
+TaskWithSubtasks.model_rebuild()
 
 
 # Also update the request model for the processor

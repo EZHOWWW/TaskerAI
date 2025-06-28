@@ -1,17 +1,25 @@
 import enum
 from datetime import datetime
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Column,
     DateTime,
     Float,
+    ForeignKey,
     Integer,
+    Interval,
     String,
     Text,
 )
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
+
+# from .embedding import EMBEDDING_SIZE
+
+EMBEDDING_SIZE = 384
+
 
 Base = declarative_base()
 
@@ -36,11 +44,22 @@ class Task(Base):
     )
 
     # Tree Structure
-    # parent_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
-    # subtasks = relationship("Task", back_populates="parent")
-    # parent = relationship("Task", remote_side=[id], back_populates="subtasks")
+    parent_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
 
-    # # AI-Generated Fields
+    # Defines the "one-to-many" relationship for subtasks.
+    # When a parent task is deleted, all its subtasks are also deleted due to the cascade.
+    subtasks = relationship(
+        "Task",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+        lazy="selectin",  # Efficiently loads subtasks
+    )
+
+    # Defines the "many-to-one" relationship for the parent.
+    # remote_side is required for self-referential relationships.
+    parent = relationship("Task", back_populates="subtasks", remote_side=[id])
+
+    # AI-Generated Fields
     complexity = Column(Float, default=0.0)
     priority = Column(Float, default=0.0)
     tags = Column(JSONB, default=list)
@@ -51,12 +70,16 @@ class Task(Base):
     user_id = Column(Integer, nullable=True, default=0)
 
     # Vector for semantic search
-    # embedding = Column(
-    #     Vector(384), nullable=True
-    # )  # Dimension depends on embedding model
+    embedding = Column(
+        Vector(EMBEDDING_SIZE), nullable=True
+    )  # Dimension depends on embedding model
 
     # Timestamps
     deadline = Column(DateTime(timezone=True), default=datetime.utcnow)
+    start_time_execution = Column(
+        DateTime(timezone=True), default=datetime.utcnow
+    )
+    estimated_duraction = Column(Interval, nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(
         DateTime(timezone=True),
