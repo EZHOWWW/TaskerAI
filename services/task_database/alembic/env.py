@@ -3,12 +3,13 @@ import os
 import sys
 from pathlib import Path
 
-from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import pool
 
 # Импортируем async_engine_from_config для асинхронных миграций
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from alembic import context
 
 # Это наш базовый объект MetaData из src.models.
 # Make sure to import your Base from src.models
