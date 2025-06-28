@@ -1,10 +1,7 @@
 from core_lib.models.task import TaskCreate
 
+from .embedding import generate_embedding
 from .models import Task as DBTask
-
-
-def generate_embedding(text: str, embidding_size: int = 384) -> list[float]:
-    return [0] * embidding_size
 
 
 def pydantic_to_db_task(task: TaskCreate) -> DBTask:
@@ -14,8 +11,9 @@ def pydantic_to_db_task(task: TaskCreate) -> DBTask:
     """
     # Create the DB model instance
     # db_instance = DBTask(**task.model_dump())
-    #
-    embedding = generate_embedding(f"{task.title}\n{task.description}")
+    embedding = generate_embedding(
+        f"{task.title}\n{task.description}\n{task.tags}"
+    )
 
     db_instance = DBTask(
         title=task.title,
@@ -27,7 +25,7 @@ def pydantic_to_db_task(task: TaskCreate) -> DBTask:
         user_id=task.user_id,
         parent_id=task.parent_id,
         embedding=embedding,
-        estimated_duration=task.estimated_duration,
+        # estimated_duration=task.estimated_duration,
         start_time_execution=task.start_time_execution,
         deadline=task.deadline,
     )

@@ -21,6 +21,7 @@ dependencies = [
     "pytest-asyncio>=1.0.0",
     "aiosqlite>=0.21.0",
     "sqlalchemy-utils>=0.41.2",
+    "sentence-transformers>=4.1.0",
 ]
 
 [tool.uv]

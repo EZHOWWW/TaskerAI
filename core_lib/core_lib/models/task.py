@@ -60,6 +60,17 @@ class Task(TaskBase):
         from_attributes = True
 
 
+class TaskWithSubtasks(Task):
+    """
+    A recursive model to represent a task with its entire subtree of subtasks.
+    """
+
+    subtasks: List["TaskWithSubtasks"] = []
+
+
+TaskWithSubtasks.model_rebuild()
+
+
 # Also update the request model for the processor
 class TaskProcessRequest(BaseModel):
     goal: str = Field(

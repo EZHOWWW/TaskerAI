@@ -8,12 +8,18 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    Interval,
     String,
     Text,
 )
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base, relationship
+
+# from .embedding import EMBEDDING_SIZE
+
+EMBEDDING_SIZE = 384
+
 
 Base = declarative_base()
 
@@ -39,29 +45,33 @@ class Task(Base):
 
     # Tree Structure
     parent_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
-    parent = relationship("Task", remote_side=[id], back_populates="subtasks")
-    # subtasks = relationship("Task", back_populates="parent")
+
+    # Defines the "one-to-many" relationship for subtasks.
+    # When a parent task is deleted, all its subtasks are also deleted due to the cascade.
     subtasks = relationship(
         "Task",
-        backref="parent",
-        remote_side=[id],
-        lazy="joined",
+        back_populates="parent",
         cascade="all, delete-orphan",
+        lazy="selectin",  # Efficiently loads subtasks
     )
 
-    # # AI-Generated Fields
+    # Defines the "many-to-one" relationship for the parent.
+    # remote_side is required for self-referential relationships.
+    parent = relationship("Task", back_populates="subtasks", remote_side=[id])
+
+    # AI-Generated Fields
     complexity = Column(Float, default=0.0)
     priority = Column(Float, default=0.0)
     tags = Column(JSONB, default=list)
     level = Column(Integer, nullable=False, default=0)
 
     # Multi-tenancy - each task belongs to a user
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    # user_id = Column(Integer, nullable=True, default=0)
+    # user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, nullable=True, default=0)
 
     # Vector for semantic search
     embedding = Column(
-        Vector(384), nullable=True
+        Vector(EMBEDDING_SIZE), nullable=True
     )  # Dimension depends on embedding model
 
     # Timestamps
@@ -69,7 +79,7 @@ class Task(Base):
     start_time_execution = Column(
         DateTime(timezone=True), default=datetime.utcnow
     )
-    estimated_duraction = Columt
+    estimated_duraction = Column(Interval, nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(
         DateTime(timezone=True),
