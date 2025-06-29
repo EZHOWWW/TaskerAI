@@ -1,34 +1,55 @@
+# user_database/src/schemas/user.py
+
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+
+from .user_shedule import UserShedule
 
 
 class UserBase(BaseModel):
-    """This class is a base for user-related models and includes fields that are common to all users."""  # noqa: E501
+    """Base Pydantic model for user data."""
 
-    username: str
     email: EmailStr
-    created_at: datetime = datetime.now()
-    telegram_account: Optional[str] = None
+    username: str = Field(..., min_length=3, max_length=50)
+
+    description_for_llm: Optional[str] = None
+
+    shedule: Optional[UserShedule] = None
 
 
 class UserCreate(UserBase):
-    """This class includes an additional field for a password, used when creating new users. It also has a method to create a hashed version of the password."""  # noqa: E501
+    """Pydantic model for creating a new user (includes plain password)."""
 
-    password: str
+    password: str = Field(
+        ..., min_length=8
+    )  # Password should be hashed before saving
 
 
-class UserUpdate(UserBase):
-    """This class includes optional fields for updating user information. It also has a method to update the hashed version of the password if necessary."""  # noqa: E501
+class UserUpdate(BaseModel):
+    """Pydantic model for updating user data. All fields are optional for partial updates."""
 
-    username: Optional[str] = None
     email: Optional[EmailStr] = None
-    telegram_account: Optional[str] = None
-    password: Optional[str] = None
+    username: Optional[str] = Field(None, min_length=3, max_length=50)
+    password: Optional[str] = Field(
+        None, min_length=8
+    )  # For updating password, will be hashed
+    description_for_llm: Optional[str] = None
+
+    shedule: Optional[UserShedule] = None
 
 
 class User(UserBase):
-    """This class represents a finalized user model as stored in the database. It includes all fields from `UserBase` plus a password hash for secure storage of passwords."""  # noqa: E501
+    """Full Pydantic model for user data for API responses.
+    Can be extended with more fields if needed for API presentation.
+    """
 
-    password_hash: str
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = (
+            True  # Allows Pydantic to create model from SQLAlchemy objects
+        )
