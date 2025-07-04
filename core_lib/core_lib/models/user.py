@@ -1,5 +1,3 @@
-# user_database/src/schemas/user.py
-
 from datetime import datetime
 from typing import Optional
 
@@ -17,6 +15,9 @@ class UserBase(BaseModel):
     description_for_llm: Optional[str] = None
 
     shedule: Optional[UserShedule] = None
+
+    tg_username: Optional[str] = Field(None, min_length=5, max_length=32)
+    tg_chat_id: Optional[int] = None
 
 
 class UserCreate(UserBase):
@@ -38,6 +39,9 @@ class UserUpdate(BaseModel):
     description_for_llm: Optional[str] = None
 
     shedule: Optional[UserShedule] = None
+
+    tg_username: Optional[str] = Field(None, min_length=5, max_length=32)
+    tg_chat_id: Optional[int] = None
 
 
 class User(UserBase):
