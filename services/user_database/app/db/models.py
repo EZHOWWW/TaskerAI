@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import declarative_base
 
 # Base class for SQLAlchemy declarative models
@@ -30,6 +30,11 @@ class User(Base):
     )
 
     description = Column(Text, nullable=True)
+
+    # Notification info
+    tg_username = Column(String(32), unique=True, nullable=True)
+    tg_chat_id = Column(Integer, nullable=True)
+    is_notified = Column(Boolean, nullable=True)
 
     # shedule: Optional[UserShedule] = None TODO
 
