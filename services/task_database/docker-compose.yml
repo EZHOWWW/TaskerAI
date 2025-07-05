@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  user_db:
+  task_db:
     image: ankane/pgvector:latest
     ports:
       - "5432:5432"
@@ -10,9 +10,9 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - pgdata_users:/var/lib/postgresql/data
+      - pgdata_tasks:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user_user -d user_db"]
+      test: ["CMD-SHELL", "pg_isready -U user -d task_db"]
       interval: 5s
       timeout: 5s
       retries: 5
