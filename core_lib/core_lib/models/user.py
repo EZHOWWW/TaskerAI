@@ -18,6 +18,7 @@ class UserBase(BaseModel):
 
     tg_username: Optional[str] = Field(None, min_length=5, max_length=32)
     tg_chat_id: Optional[int] = None
+    is_notified: Optional[bool] = None
 
 
 class UserCreate(UserBase):
@@ -42,6 +43,7 @@ class UserUpdate(BaseModel):
 
     tg_username: Optional[str] = Field(None, min_length=5, max_length=32)
     tg_chat_id: Optional[int] = None
+    is_notified: Optional[bool] = None
 
 
 class User(UserBase):
